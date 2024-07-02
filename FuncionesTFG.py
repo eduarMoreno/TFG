@@ -43,9 +43,14 @@ def procesarRespuesta(texto,url,eissn,journal,web):
         #Se splittea la información entre la línea para separar los datos obtenidos por chatGPT
         datos=linea.split("/")
         #Datos[0] = nombre       #Datos[1] = País del usuario del que se almacenan los datos        #Datos[2] = Lugar donde trabaja
-        if datos[0]!="NA" and datos[0]!=" NA" and datos[0] != "n" and "name" not in datos[0] and datos[0]!= "Name: NA" and len(datos)>=3 and datos[0]!= " " and datos[0]!= "ACM" and "editor" not in datos[0]:             #En ocasiones el sistema devuelve datos extraños con todos los valores "NA", con este if se eliminan estos casos
+        if (          
+            len(datos) >= 3 and datos[0] != "NA" and
+            datos[0] != " NA" and datos[0] != "n" and
+            datos[0] != "Name: NA" and datos[0] != " " and
+            datos[0] != "ACM" and "name" not in datos[0] and "editor" not in datos[0]
+        ):         
+            #En ocasiones el sistema devuelve datos extraños con todos los valores "NA", con este if se eliminan estos casos asegurando el procesamiento
             #Se evitan las "," que se añaden en algunas revistas entre país y lugar de trabajo, se reemplazan por un vacío
-            #se evitan algunas posibilidades que devuelve ChatGPT para asegurar que los datos se devuelven como deben
             datos[0]=datos[0].replace(",","")
             datos[1]=datos[1].replace(",","")
             datos[2]=datos[2].replace(",","")
@@ -133,7 +138,8 @@ def accederORCID(url):
                 orcid = datosORCID
     #Salimos de Google Chrome y devolvemos la información
     driver.quit()
-    informacion = afiliacion + "!@!" + orcid
+    #Se evitan comas que implican errores en la separación en la función principal
+    informacion = afiliacion.replace(",","") + "!@!" + orcid.replace(",","") 
     return informacion
 
 def comenzarEstudio(web):
@@ -141,22 +147,18 @@ def comenzarEstudio(web):
         excel = obtenerVariable("ExcelMiembrosAfiliacion")
     else:
         excel = obtenerVariable("EXCEL_MIEMBROS")
-    excel = "muestra_openeditors_copia.xlsx"
     wb = load_workbook(excel)     #se carga el excel y se abre
     ws = wb.active
     #Accedemos al excel con los datos de destino y extraemos los campos necesarios
     dataframe = pd.read_excel("jcr_computer_science_journals_pfg_resultados.xlsx") 
-    urls = dataframe[["URL", "ISSN","Journal name"]][0:1] 
+    urls = dataframe[["URL", "ISSN","Journal name"]][0:424] 
     try:     
         for  index,fila in urls.iterrows(): #Para cada una de las filas
-            #url = fila["URL"]
-            url = "https://journals.sagepub.com/editorial-board/adba"
-            #issn =  fila["ISSN"]
-            issn= "1059-7123"
+            url = fila["URL"]
+            issn =  fila["ISSN"]
             if issn == "NO":
                 issn = "NA"
-            #nombre = fila["Journal name"]
-            nombre = "Adaptive Behavior"
+            nombre = fila["Journal name"]
             #Se extrae el codigo html de la página web
             html = obtenerCodigoWeb(url) 
             #Se extrae el contenido del body del html
