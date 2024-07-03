@@ -20,4 +20,8 @@ A la hora de ejecutar el programa se requiere la utilización de los tres archiv
 - FuncionesTFG.py: Archivo python en el que se cumplen todas las funcionalidades del modelo.
 - Variables.env: Utilizada para almacenar toda la información requerida para el funcionamiento del sistema.
 
+Debido a que Github no permite añadir la clave secreta en el Variables.env, la llave es:
+
+sk-proj- + EhwlZ0RvYJrFlvqYcdYBT3BlbkFJQchJrbKbNQDSEYx3dg7m
+
 
